@@ -12,8 +12,8 @@ if not BOT_TOKEN:
 # Temporary directory for downloads
 TEMP_DIR = tempfile.gettempdir()
 
-# Maximum file size for Telegram (50MB for non-premium users, but bots can send larger; adjust as needed)
-MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
+# Maximum file size for Telegram (bots can send up to 2GB; adjust as needed)
+MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024  # 2 GB
 
 # Rate limiting: max downloads per user per minute
 RATE_LIMIT = 5  # downloads per minute

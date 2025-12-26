@@ -84,7 +84,7 @@ Direct image downloads from any URL with common extensions (.jpg, .png, .gif, et
 ## Configuration
 
 Edit `config.py` to customize:
-- `MAX_FILE_SIZE`: Maximum file size (default: 50MB)
+- `MAX_FILE_SIZE`: Maximum file size (default: 2GB)
 - `RATE_LIMIT`: Downloads per minute per user (default: 5)
 - `LOG_LEVEL`: Logging verbosity (default: INFO)
 
