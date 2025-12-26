@@ -150,34 +150,36 @@ class VideoDownloader:
                 size = get_file_size(filepath)
                 if size > MAX_FILE_SIZE:
                     cleanup_file(filepath)
-                    raise ValueError(f"File size ({size} bytes) exceeds Telegram limit ({MAX_FILE_SIZE} bytes)")
+                    raise ValueError(f"File size ({size} bytes) exceeds limit ({MAX_FILE_SIZE // (1024*1024*1024)}GB)")
 
                 return filepath, info
         except yt_dlp.utils.DownloadError as e:
             error_msg = str(e)
-            if "Requested format is not available" in error_msg or "Unknown format code" in error_msg:
+            if "Sign in to confirm" in error_msg or "cookies" in error_msg.lower():
+                raise ValueError("This video requires authentication (age-restricted or bot-protected). Unable to download.")
+            elif "Requested format is not available" in error_msg or "Unknown format code" in error_msg:
                 # Retry with best available format
                 ydl_opts['format'] = 'best' if format_type == 'video' else 'bestaudio'
                 try:
                     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                            info = ydl.extract_info(url, download=True)
-                            filename = ydl.prepare_filename(info)
-                            base = os.path.splitext(filename)[0]
-                            filepath = filename
-                            try:
-                                candidates = [os.path.join(self.temp_dir, f) for f in os.listdir(self.temp_dir) if f.startswith(os.path.basename(base))]
-                                candidates = [c for c in candidates if not c.endswith('.part')]
-                                if candidates:
-                                    filepath = max(candidates, key=os.path.getsize)
-                            except Exception:
-                                pass
+                             info = ydl.extract_info(url, download=True)
+                             filename = ydl.prepare_filename(info)
+                             base = os.path.splitext(filename)[0]
+                             filepath = filename
+                             try:
+                                 candidates = [os.path.join(self.temp_dir, f) for f in os.listdir(self.temp_dir) if f.startswith(os.path.basename(base))]
+                                 candidates = [c for c in candidates if not c.endswith('.part')]
+                                 if candidates:
+                                     filepath = max(candidates, key=os.path.getsize)
+                             except Exception:
+                                 pass
 
-                            size = get_file_size(filepath)
-                            if size > MAX_FILE_SIZE:
-                                cleanup_file(filepath)
-                                raise ValueError(f"File size ({size} bytes) exceeds Telegram limit ({MAX_FILE_SIZE} bytes)")
+                             size = get_file_size(filepath)
+                             if size > MAX_FILE_SIZE:
+                                 cleanup_file(filepath)
+                                 raise ValueError(f"File size ({size} bytes) exceeds limit ({MAX_FILE_SIZE // (1024*1024*1024)}GB)")
 
-                            return filepath, info
+                             return filepath, info
                 except Exception as retry_e:
                     raise ValueError(f"Download failed even with fallback format: {str(retry_e)}")
             else:
