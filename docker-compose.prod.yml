@@ -1,0 +1,46 @@
+# Production version of docker-compose.yml for advanced configurations
+version: '3.8'
+
+services:
+  telegram-downloader:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: telegram-downloader:latest
+    container_name: telegram-downloader
+    restart: unless-stopped
+    ports:
+      - "8083:8000"
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - PORT=8000
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - /tmp:/tmp  # Shared temp directory for downloads
+    networks:
+      - default
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    # Portainer labels for UI
+    labels:
+      - "io.portainer.accessControl.teams=owner"
+      - "com.example.description=Telegram Media Downloader Bot"
+      - "com.example.version=1.0.0"
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "com.example.logs"
+
+networks:
+  default:
+    driver: bridge

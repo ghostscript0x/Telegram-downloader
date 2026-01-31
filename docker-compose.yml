@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  telegram-downloader:
+    build: .
+    container_name: telegram-downloader
+    restart: unless-stopped
+    ports:
+      - "8083:8000"
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - PORT=8000
+      - LOG_LEVEL=INFO
+    volumes:
+      - /tmp:/tmp  # Shared temp directory for downloads
+    networks:
+      - default
+    # Portainer labels for UI
+    labels:
+      - "io.portainer.accessControl.teams=owner"
+      - "traefik.enable=false"
+
+networks:
+  default:
+    driver: bridge
